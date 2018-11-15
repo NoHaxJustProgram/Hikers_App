@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/getCalorie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input the calories desired:"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Input"
+            android:inputType="number"
+            android:textSize="24sp" />
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/toSuggest"
+            android:onClick="onFoodClick"/>
+        <View
+            android:layout_height="1dp"
+             android:layout_width="match_parent"
+            android:id="@+id/divider2"
+            android:background="?android:attr/listDivider"/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="24sp"
+            android:id="@+id/suggestion"/>
+        <View
+            android:layout_height="15dp"
+            android:layout_width="match_parent"
+            android:id="@+id/divider4"
+            android:background="?android:attr/listDivider"/>
+
+        <TextView
+            android:id="@+id/setCalorie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input the distance travelled:"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Input"
+            android:inputType="text"
+            android:textSize="24sp" />
+
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/toRecieve"
+            android:onClick="onCalorieClick"/>
+        <View
+            android:layout_height="1dp"
+            android:layout_width="match_parent"
+            android:id="@+id/divider3"
+            android:background="?android:attr/listDivider"/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="24sp"
+            android:id="@+id/recievedCalories"/>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="259dp"
+            app:srcCompat="@mipmap/ic_launcher_round" />
+
+</LinearLayout>
+</android.support.constraint.ConstraintLayout>
