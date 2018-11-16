@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.sictc.cspm.hikers_app.MainActivity;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
@@ -17,7 +19,7 @@ import java.util.Map;
 
 public class SettingsFragment extends Fragment
 {
-
+    private MainActivity ahaha = new MainActivity();
     private TextView txtname;
     private TextView txtheight;
     private TextView txtweight;
@@ -27,12 +29,11 @@ public class SettingsFragment extends Fragment
     private EditText edtweight;
 
     private BackendlessUser user = new MainActivity().getUser();
-    private Map<String, String> userTableMain = new MainActivity().getUserTableMain();
+    private Map<String, Object> userTableMain = ahaha.getUserTableMain();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_settings, container, false);
-
         txtname = (TextView) rootView.findViewById(R.id.Name);
         txtheight = (TextView) rootView.findViewById(R.id.height);
         txtweight = (TextView) rootView.findViewById(R.id.weight);
@@ -41,9 +42,10 @@ public class SettingsFragment extends Fragment
         edtheight = (EditText) rootView.findViewById(R.id.EditHeight);
         edtweight = (EditText) rootView.findViewById(R.id.EditWeight);
 
-        txtname.setText(userTableMain.get("Name"));
-        txtheight.setText(userTableMain.get("Height"));
-        txtweight.setText(userTableMain.get("Weight"));
+        Log.i("Main activity is?", (ahaha == null) + " null or naw?");
+        txtname.setText(userTableMain.get("Name").toString());
+        txtheight.setText(userTableMain.get("Height").toString());
+        txtweight.setText(userTableMain.get("Weight").toString());
 
         edtname.addTextChangedListener(textWatcher);
         edtheight.addTextChangedListener(textWatcher);
