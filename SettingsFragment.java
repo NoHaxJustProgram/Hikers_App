@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import com.sictc.cspm.hikers_app.MainActivity;
+
+import com.backendless.async.callback.AsyncCallback;
+import com.backendless.exceptions.BackendlessFault;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
@@ -19,7 +21,6 @@ import java.util.Map;
 
 public class SettingsFragment extends Fragment
 {
-    private MainActivity ahaha = new MainActivity();
     private TextView txtname;
     private TextView txtheight;
     private TextView txtweight;
@@ -28,8 +29,8 @@ public class SettingsFragment extends Fragment
     private EditText edtheight;
     private EditText edtweight;
 
-    private BackendlessUser user = new MainActivity().getUser();
-    private Map<String, Object> userTableMain = ahaha.getUserTableMain();
+    private BackendlessUser user = UserTableMain.user;
+    private Map<String, Object> userTableMain = UserTableMain.userTableMain;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -42,7 +43,8 @@ public class SettingsFragment extends Fragment
         edtheight = (EditText) rootView.findViewById(R.id.EditHeight);
         edtweight = (EditText) rootView.findViewById(R.id.EditWeight);
 
-        Log.i("Main activity is?", (ahaha == null) + " null or naw?");
+        Log.i("imma kms", (userTableMain) + " :((((( 2");
+
         txtname.setText(userTableMain.get("Name").toString());
         txtheight.setText(userTableMain.get("Height").toString());
         txtweight.setText(userTableMain.get("Weight").toString());
@@ -63,6 +65,21 @@ public class SettingsFragment extends Fragment
         userTableMain.put("Name", edtname.getText().toString());
         userTableMain.put("Height", edtheight.getText().toString());
         userTableMain.put("Weight", edtweight.getText().toString());
+
+        user.setProperties(userTableMain);
+        Backendless.Persistence.of(user.getProperty("username").toString()).save(userTableMain, new AsyncCallback<Map>() {
+            @Override
+            public void handleResponse(Map response) {
+                Log.i("Name is?", "!!! " + response.get("Name"));
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+
+            }
+        });
+
+        Log.i("Updated properies", "Successfully updated properties");
     }
 
     private TextWatcher textWatcher = new TextWatcher() {

@@ -1,7 +1,9 @@
 package com.sictc.cspm.hikers_app;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -19,18 +21,17 @@ import android.widget.EditText;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
-import com.backendless.IDataStore;
 import com.backendless.async.callback.AsyncCallback;
-import com.backendless.exceptions.BackendlessException;
 import com.backendless.exceptions.BackendlessFault;
-import com.backendless.persistence.BackendlessDataQuery;
-import com.backendless.persistence.DataQueryBuilder;
 import com.backendless.property.ObjectProperty;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 public class MainActivity extends AppCompatActivity
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity
     private final String BE_ANDROID_API_KEY = "37CDE6A6-11A1-521D-FF83-57D5CA077300";
     private final String SERVER_URL = "https://api.backendless.com";
 
+    public CreateAppTable createAppTable;
     private Button login;
     private Button signup;
     private Button loginSignup;
@@ -50,14 +52,6 @@ public class MainActivity extends AppCompatActivity
     public BackendlessUser user = new BackendlessUser();
 
     public Map<String, Object> userTableMain;
-
-    public Map<String, Object> getUserTableMain() {
-        return userTableMain;
-    }
-
-    public BackendlessUser getUser() {
-        return user;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +136,7 @@ public class MainActivity extends AppCompatActivity
                                 user = response;
                                 setContentView(R.layout.activity_main);
                                 activityMain();
+                                UserTableMain.user = user;
                             }
 
                             @Override
@@ -158,9 +153,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean retValue = false;
-    public Map<String, String> first;
-    public boolean Login()
-    {
+
+    public List<ObjectProperty> appTable = null;
+    public HashMap userTable = new HashMap<>();
+    public boolean Login() {
         email = findViewById(R.id.loginEmail);
         password = findViewById(R.id.loginPass);
 
@@ -168,49 +164,62 @@ public class MainActivity extends AppCompatActivity
         String strPass = password.getText().toString();
 
 
-        if (!(strEmail.isEmpty() && strPass.isEmpty()))
-        {
-            Backendless.UserService.login(strEmail, strPass, new AsyncCallback<BackendlessUser>()
-            {
+        if (!(strEmail.isEmpty() && strPass.isEmpty())) {
+            Backendless.UserService.login(strEmail, strPass, new AsyncCallback<BackendlessUser>() {
                 @Override
-                public void handleResponse(BackendlessUser response)
-                {
+                public void handleResponse(BackendlessUser response) {
                     user = response;
-                    HashMap userTable = new HashMap<>();
-                    userTable.put("Name", "");
+                    UserTableMain.user = user;
+                    userTable.put("Name", "To Be Entered");
                     userTable.put("Height", "0'0");
                     userTable.put("Weight", "0");
+
                     retValue = true;
 
-                    IDataStore test = Backendless.Data.of(user.getProperty("username").toString());
+                    createAppTable = new CreateAppTable(UserTableMain.user);
 
-                    if (test == null)
-                    {
-                        Backendless.Data.of(user.getProperty("username").toString()).save(userTable, new AsyncCallback<Map>() {
-                            @Override
-                            public void handleResponse(Map response) {
-                                userTableMain = response;
-                                Log.i("Saved", "saved table successfully");
+                    createAppTable.createTable();
+                    Handler mhandler = new Handler();
+
+                    mhandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Log.i("Handler", "In the handler");
+                            appTable = createAppTable.getAppTable();
+                            if (appTable == null) {
+                                Backendless.Data.of(user.getProperty("username").toString()).save(userTable, new AsyncCallback<Map>() {
+                                    @Override
+                                    public void handleResponse(Map response) {
+                                        userTableMain = response;
+                                        UserTableMain.userTableMain = response;
+                                        Log.i("Saved", "saved table successfully");
+                                    }
+
+                                    @Override
+                                    public void handleFault(BackendlessFault fault) {
+                                        Log.i("Failed", "Failed to save table");
+                                        Log.e("Fault", ":( " + fault.getMessage());
+                                    }
+                                });
+                            } else {
+                                userTableMain = user.getProperties();
+
+                                Log.i("Utm in ma", (userTableMain == null) + " :(((");
+
+                                UserTableMain.userTableMain = userTableMain;
                             }
 
-                            @Override
-                            public void handleFault(BackendlessFault fault) {
-                                Log.i("Failed", "Failed to save table");
-                                Log.e("Fault", ":( " + fault.getMessage());
-                            }
-                        });
-                    }
-                    else
-                    {
-                        userTableMain = user.getProperties();
+                        }
+                    }, 2500);
 
-                    }
+
+
 
                 }
 
                 @Override
-                public void handleFault(BackendlessFault fault)
-                {
+                public void handleFault(BackendlessFault fault) {
                     retValue = false;
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -282,5 +291,26 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public class AsyncTassk extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result)
+        {
+            CreateAppTable.getInstance().createTable();
+        }
     }
 }
